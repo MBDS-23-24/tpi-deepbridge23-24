@@ -8,8 +8,7 @@ class Main:
 
     def run(self, src, dest):
         _slice = Slice()
-        return _slice.generate_image(src, dest)
-
+        _slice.generate_image(src, dest)
     
 if __name__ == "__main__":
     main = Main()
