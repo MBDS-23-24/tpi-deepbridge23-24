@@ -1,11 +1,12 @@
 from image_trater.Coeff_Strategy import Coeff_Strategy
 from image_trater.Donati import Donati
-from image_trater.Utility import compression_coefficient, eval_diagonal
+from image_trater.Utility import compression_coefficient, eval_diagonal, merge_pixel
 from PIL import Image
 
 
 class Slice:
-    default_pixel = None
+    default_pixel = (255, 0, 0)
+    nb_images = 1
 
     def __init__(self):
         pass
@@ -29,7 +30,7 @@ class Slice:
         yy, xx = image.size
 
         # Get pixels
-        pixels = list(image.getdata())
+        list(image.getdata())
         res = [None for _ in range(0, eval_diagonal(xx, yy))]
 
         donati = Donati(p, q)  # y = px + q
@@ -51,14 +52,15 @@ class Slice:
                         current_pixel = res[index]
                         c1, c2 = compression_coefficient(current_pixel, pixel, donati.get_distance_from_point,
                                                          strategy.eval_coeff_by_max_dist)
-                        res[index] = (current_pixel, pixel, c1, c2)
+                        res[index] = merge_pixel(current_pixel, pixel, c1, c2)
 
-            if debug:
-                print(f"Result array length = {len(res)}.")
-            res = [pixel if pixel is not None else self.default_pixel for pixel in res]
-
-            # Put the pixels into the image
-            image.putdata(pixels)
-
-            # Save the image
-            image.save(dst)
+        if debug:
+            print(f"Result array length = {len(res)}.")
+        res = [pixel if pixel is not None else self.default_pixel for pixel in res]
+        if debug:
+            print(f"Result array length after treatment = {len(res)}.")
+        # Put the pixels into the image
+        im = Image.new('RGB', (len(res), self.nb_images))
+        im.putdata(res)
+        # Save the image
+        im.save(dst)
