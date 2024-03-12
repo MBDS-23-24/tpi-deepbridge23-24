@@ -1,4 +1,4 @@
-import Slice
+from image_trater.Slice import Slice
 
 
 def run(src, dest, slice_info=(1, 0)):
