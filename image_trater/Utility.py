@@ -42,7 +42,7 @@ def merge_pixel(pixels:list, coefs:list):
     return tuple(int(sum(c * p[i] for i, c in enumerate(coefs))) for p in zip(*pixels))
 
 def map_coef_list(ls, donati:Donati, strategy:Coeff_Strategy):
-    return list(map(lambda x: 1 if len(x) == 1
+    return list(map(lambda x: [1] if len(x) == 1
                     else compression_coefficient(
                         x, donati.get_distance_from_point, 
                         strategy.eval_coeff_by_max_dist)
