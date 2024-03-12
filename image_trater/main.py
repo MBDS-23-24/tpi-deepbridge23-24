@@ -1,15 +1,12 @@
-import Slice
-import Donati
+from image_trater.Slice import Slice
 
-class Main:
 
-    def __init__(self):
-        pass
+def run(src, dest, slice_info=(1, -1)):
+    _slice = Slice()
+    return _slice.generate_image(slice_info, src, dest, debug=True)
 
-    def run(self, src, dest):
-        _slice = Slice()
-        _slice.generate_image(src, dest)
-    
+
 if __name__ == "__main__":
-    main = Main()
-    main.run()
+    # value defined for straight line equation : y = px + q
+    # TODO: define p and q
+    run("../examples/tests/line2D/set/example1.png", "../examples/tests/line2D/results/example1.png")
