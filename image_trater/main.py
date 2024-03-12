@@ -1,7 +1,9 @@
-from image_trater.Slice import Slice
+# from image_trater.Slice import Slice
+from Slice import Slice
+import os
 
 
-def run(src, dest, slice_info=(1, -1)):
+def run(src, dest, slice_info=(1, 0)):
     _slice = Slice()
     return _slice.generate_image(slice_info, src, dest, debug=True)
 
@@ -9,4 +11,5 @@ def run(src, dest, slice_info=(1, -1)):
 if __name__ == "__main__":
     # value defined for straight line equation : y = px + q
     # TODO: define p and q
-    run("../examples/tests/line2D/set/example1.png", "../examples/tests/line2D/results/example1.png")
+    path = os.getcwd()
+    run(f"{path}/examples/tests/line2D/set/example1.png", f"{path}/examples/tests/line2D/results/example1.png")

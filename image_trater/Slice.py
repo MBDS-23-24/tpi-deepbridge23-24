@@ -1,11 +1,17 @@
-from image_trater.Coeff_Strategy import Coeff_Strategy
-from image_trater.Donati import Donati
-from image_trater.Utility import compression_coefficient, eval_diagonal, merge_pixel
-from PIL import Image
+# from image_trater.Coeff_Strategy import Coeff_Strategy
+# from image_trater.Donati import Donati
+# from image_trater.Utility import compression_coefficient, merge_pixel
 
+from PIL import Image
+from Pixel import Pixel
+
+from Coeff_Strategy import Coeff_Strategy
+from Donati import Donati
+from Utility import map_coef_list
+# from Utility import compression_coefficient, merge_pixel
 
 class Slice:
-    default_pixel = (255, 0, 0)
+    default_pixel_color = (255, 0, 0, 255)
     nb_images = 1
 
     def __init__(self):
@@ -24,43 +30,43 @@ class Slice:
         p, q = slice_info
         image = Image.open(src)
 
-        # Convert in RGB
-        image = image.convert("RGB")
-
-        yy, xx = image.size
+        height, width = image.size
 
         # Get pixels
-        list(image.getdata())
-        res = [None for _ in range(0, eval_diagonal(xx, yy))]
+        # list(image.getdata())
+        res = [] 
 
         donati = Donati(p, q)  # y = px + q
         strategy = Coeff_Strategy()
 
-        for y in range(yy):
-            for x in range(xx):
+        for y in range(height):
+            for x in range(width):
+                index = x if p <= 1 else y
                 pixel = image.getpixel((x, y))
 
                 if debug:
                     print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pixel}")
 
                 if donati.is_point_on(x, y):
-                    index = x if q < 1 else y
 
-                    if res[index] is None:
-                        res[index] = pixel
+                    # if there is a pixel located at the index position, then return True
+                    if len(res) <= index:
+                        res.append([Pixel(x, y, pixel)])
                     else:
-                        current_pixel = res[index]
-                        c1, c2 = compression_coefficient(current_pixel, pixel, donati.get_distance_from_point,
-                                                         strategy.eval_coeff_by_max_dist)
-                        res[index] = merge_pixel(current_pixel, pixel, c1, c2)
+                        res[index].append(Pixel(x, y, pixel))
+                        
 
         if debug:
             print(f"Result array length = {len(res)}.")
-        res = [pixel if pixel is not None else self.default_pixel for pixel in res]
+        # res = [pixel if pixel is not None else self.default_pixel_color for pixel in res]
         if debug:
             print(f"Result array length after treatment = {len(res)}.")
+            print(f"Result array = {res}")
+
+        coef_list = map_coef_list(res, donati, strategy)
         # Put the pixels into the image
-        im = Image.new('RGB', (len(res), self.nb_images))
+        im = Image.new('RGBA', (len(res), self.nb_images))
+        # execute
         im.putdata(res)
         # Save the image
         im.save(dst)
