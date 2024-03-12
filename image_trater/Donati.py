@@ -1,7 +1,7 @@
 class Donati:
     def __init__(self, p, q):
-        p = p
-        q = q
+        self.p = p
+        self.q = q
 
     def is_point_on(self, x, y):
         """
