@@ -1,7 +1,7 @@
 class Donati:
     def __init__(self, p, q):
-        p = p
-        q = q
+        self.p = p
+        self.q = q
 
     def is_point_on(self, x, y):
         """
@@ -16,7 +16,7 @@ class Donati:
             The y coordinate of the point
         """
         # The equation of the curve is: y = p*x + q
-        return y == self.p*x + self.q
+        return y == self.p * x + self.q
 
     def get_distance_from_point(self, x, y):
         """
@@ -30,4 +30,4 @@ class Donati:
             The y coordinate of the point
         """
         # The equation of the curve is: y = p*x + q
-        return abs(y - (self.p*x + self.q))
+        return abs(y - (self.p * x + self.q))

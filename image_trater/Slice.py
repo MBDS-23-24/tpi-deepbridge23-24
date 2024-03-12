@@ -1,6 +1,6 @@
 from image_trater.Coeff_Strategy import Coeff_Strategy
 from image_trater.Donati import Donati
-from image_trater.Utility import compression_coefficient
+from image_trater.Utility import compression_coefficient, eval_diagonal
 from PIL import Image
 
 
@@ -26,14 +26,14 @@ class Slice:
         # Convert in RGB
         image = image.convert("RGB")
 
+        yy, xx = image.size
+
         # Get pixels
         pixels = list(image.getdata())
-        res = [None for _ in range(0, len(pixels))]
+        res = [None for _ in range(0, eval_diagonal(xx, yy))]
 
         donati = Donati(p, q)  # y = px + q
         strategy = Coeff_Strategy()
-
-        yy, xx = image.size
 
         for y in range(yy):
             for x in range(xx):
@@ -53,6 +53,8 @@ class Slice:
                                                          strategy.eval_coeff_by_max_dist)
                         res[index] = (current_pixel, pixel, c1, c2)
 
+            if debug:
+                print(f"Result array length = {len(res)}.")
             res = [pixel if pixel is not None else self.default_pixel for pixel in res]
 
             # Put the pixels into the image
