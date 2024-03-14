@@ -12,4 +12,4 @@ if __name__ == "__main__":
     # value defined for straight line equation : y = px + q
     # TODO: define p and q
     path = os.getcwd()
-    run(f"{path}/../examples/tests/line2D/set/example1.png", f"{path}/../examples/tests/line2D/results/example1.png")
+    run(f"{path}/examples/tests/line2D/set/example1.png", f"{path}/examples/tests/line2D/results/example1.png")

@@ -12,20 +12,20 @@ from Utility import merge_pixels
 
 class Slice:
     default_pixel_color = (255, 0, 0, 1)
-    nb_images = 1
+    nb_images = 3
 
     def __init__(self):
         pass
 
-    def generate_image(self, slice_info, src, dst, debug=False):
+    def cut_image(self, src, slice_info, debug=False):
         """
         This function takes an image from src
-        and saves the results in dst
+        and return a list of pixels and a list of coefficients
         Args:
         src: str
             The source of the image
-        dst: str
-            The destination of the image
+        slice_info: tuple
+            The equation of the straight line
         """
         p, q = slice_info
         image = Image.open(src)
@@ -33,8 +33,6 @@ class Slice:
 
         height, width = image.size
 
-        # Get pixels
-        # list(image.getdata())
         res = [] 
 
         donati = Donati(p, q)  # y = px + q
@@ -44,12 +42,9 @@ class Slice:
             for x in range(width):
                 index = x if p <= 1 else y
                 pixel = image.getpixel((x, y))
-
                 if debug:
                     print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pixel}")
-
                 if donati.is_point_on(x, y):
-
                     # if there is a pixel located at the index position, then return True
                     if len(res) <= index:
                         res.append([Pixel(x, y, pixel)])
@@ -73,6 +68,20 @@ class Slice:
         print(f"pixel colors : {[pixel[0].get_color() for pixel in res]}")
         # print position
         print(f"pixel positions : {[pixel[0].get_position() for pixel in res]}")
+        return res, coef_list
+
+    def generate_image(self, slice_info, src, dst, debug=False):
+        """
+        This function takes an image from src
+        and saves the results in dst
+        Args:
+        src: str
+            The source of the image
+        dst: str
+            The destination of the image
+        """
+        for i in range(0, self.nb_images):
+            res, coef_list = self.cut_image(src, slice_info, debug)
         
         # Put the pixels into the image
         im = Image.new('RGBA', (len(res), self.nb_images))
