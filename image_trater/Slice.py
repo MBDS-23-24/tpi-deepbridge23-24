@@ -8,7 +8,7 @@ from Pixel import Pixel
 from Coeff_Strategy import Coeff_Strategy
 from Donati import Donati
 from Utility import map_coef_list
-from Utility import merge_pixel
+from Utility import merge_pixels
 
 class Slice:
     default_pixel_color = (255, 0, 0, 1)
@@ -29,7 +29,7 @@ class Slice:
         """
         p, q = slice_info
         image = Image.open(src)
-        image = image.convert("RGB")
+        image = image.convert("RGBA")
 
         height, width = image.size
 
@@ -71,12 +71,12 @@ class Slice:
         # pixels = [pixel[0].get_color() for pixel in res]
 
         print(f"pixel colors : {[pixel[0].get_color() for pixel in res]}")
-        # print postion
+        # print position
         print(f"pixel positions : {[pixel[0].get_position() for pixel in res]}")
         
         # Put the pixels into the image
-        im = Image.new('RGB', (len(res), self.nb_images))
-        # execute
-        im.putdata(merge_pixel(pixels=res, coefs=coef_list))
+        im = Image.new('RGBA', (len(res), self.nb_images))
+        im.putdata(list(map(lambda pix: pix.get_color(), merge_pixels(pixels=res, coefs=coef_list, debug=True))))
         # Save the image
         im.save(dst)
+        print("done")

@@ -25,7 +25,7 @@ def compression_coefficient(x:list, eval_func, strategy):
     return strategy(distance_list)
 
 
-def merge_pixel(pixels:list, coefs:list):
+def merge_pixels(pixels:list, coefs:list, debug=False):
     """
     Merge a list of pixels with given coefficients respectives in coefs.
 
@@ -38,8 +38,24 @@ def merge_pixel(pixels:list, coefs:list):
     """
     if len(pixels) != len(coefs):
         raise ValueError("Number of pixels and coefficients must be the same.")
+    res = []
+    for i in range(0, len(pixels)):
+        res.append(merge_pixel(pixels[i], coefs[i], debug))
 
-    return tuple(int(sum(c * p[i] for i, c in enumerate(coefs))) for p in zip(*pixels))
+    return res
+
+def merge_pixel(pixel, coef, debug=False):
+    pcs = list(zip(pixel, coef))
+    _p, _c = pcs[0]
+    x, y = _p.get_position()
+    col = tuple(_pigment * _c for _pigment in _p.get_color())
+    for i in range(1, len(pcs)):
+        p, c = pcs[i]
+        new_pigment = tuple(pigment * c for pigment in p.get_color())
+        col += tuple(a + b for a, b in zip(col, new_pigment))
+    if debug and len(pixel) > 1:
+        print(f"final color {col} for coord {(x,y)}!")
+    return Pixel(x, y, col)
 
 def map_coef_list(ls, donati:Donati, strategy:Coeff_Strategy):
     return list(map(lambda x: [1] if len(x) == 1
