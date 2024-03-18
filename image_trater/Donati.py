@@ -1,3 +1,6 @@
+import math
+
+
 class Donati:
     def __init__(self, p, q):
         self.p = p
@@ -5,6 +8,8 @@ class Donati:
 
     def resolve(self, x):
         return (self.p * x) + self.q
+    def resolve_with_image(self, y):
+        return (y - self.q) / self.p
 
     def is_point_on(self, x, y):
         """
@@ -28,8 +33,8 @@ class Donati:
 
         x2 = bound_x
         y2 = self.resolve(x2)
-        while y2 < 0 or y2 > bound_y: # if y2 is out of the image bounds in y axe
-            x2 = x2 - 1
+        if y2 > bound_y:
+            x2 = self.resolve_with_image(bound_y)
             y2 = self.resolve(x2)
 
         #if x1 < 0 or y1 < 0 or x2 < 0 or y2 < 0:
@@ -47,8 +52,8 @@ class Donati:
         x = float(x1)
         y = float(y1)
 
-        for _ in range(int(steps)):
-            _l.append((int(x) if isinstance(x, float) else x, int(y) if isinstance(y, float) else y))
+        for _ in range(math.ceil(steps)):
+            _l.append((math.floor(x) if isinstance(x, float) else x, math.floor(y) if isinstance(y, float) else y))
             x = x + incr_x
             y = y + incr_y
 
