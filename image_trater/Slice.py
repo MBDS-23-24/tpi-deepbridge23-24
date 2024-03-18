@@ -40,6 +40,8 @@ class Slice:
         donati = Donati(p, q)  # y = px + q
         strategy = Coeff_Strategy()
         _l = donati.dda(width, height)
+        if debug:
+            print(f"dda return {_l}")
 
         for y in range(height):
             for x in range(width):
@@ -83,6 +85,10 @@ class Slice:
         dst: str
             The destination of the image
         """
+        if debug:
+            a, b = slice_info
+            print(f"Equation : y = {a}x + {b}")
+
         # Check if the folder exists
         if not os.path.isdir(src):
             print(f"Folder '{src}' does not exist.")
@@ -96,11 +102,11 @@ class Slice:
         for img in images:
             # Get the full path of the file
             file_path = os.path.join(src, img)
-            # Check if the file is an image
-            if os.path.isfile(file_path) and any(img.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.bmp']):
-                # Open the image using PIL
-                try:
-                    img = Image.open(file_path)                    
+            # Open the image using PIL
+            try:
+                # Check if the file is an image
+                if os.path.isfile(file_path) and any(img.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.bmp']):
+                    img = Image.open(file_path)
                     # Use cut_image to process the image. save the result in res and coef_list. append the result to
                     # the list
                     res, coef_list = self.cut_image(file_path, slice_info, debug)
@@ -109,11 +115,12 @@ class Slice:
                     print(f"coef_list = {coef_list}")
                     # appends the result to the list
                     matrix_res.append(list(map(lambda pix: pix.get_color(), merge_pixels(pixels=res, coefs=coef_list, debug=True))))
-                except Exception as e:
-                    print(f"Error processing '{img}': {e}")
 
-        print(f" -------------Matrix res = -------------\n{matrix_res}")
-        matrix_res = np.array(matrix_res, dtype=np.uint8)
-        im = Image.fromarray(matrix_res)
-        im.save(dst)
-        print("done")
+                    print(f" -------------Matrix res = -------------\n{matrix_res}")
+                    matrix_res = np.array(matrix_res, dtype=np.uint8)
+                    im = Image.fromarray(matrix_res)
+                    im.save(dst)
+                    print("done")
+
+            except Exception as e:
+                print(f"Error processing '{img}': {e}")
