@@ -8,6 +8,7 @@ class Donati:
 
     def resolve(self, x):
         return (self.p * x) + self.q
+
     def resolve_with_image(self, y):
         return (y - self.q) / self.p
 
@@ -26,8 +27,18 @@ class Donati:
         # The equation of the curve is: y = p*x + q
         return y == self.p * x + self.q
 
-
     def dda(self, bound_x, bound_y):
+        """
+        This function takes the bound of an image.
+        It returns a list of pixel that is on the donati slope.
+        /!\ Take care : This solution do not cover each pixel touching the slope...
+
+        Args:
+        x: int
+            The width of an image
+        y: int
+            The height of an image
+        """
         x1 = 0
         y1 = self.q
 
@@ -36,9 +47,6 @@ class Donati:
         if y2 > bound_y:
             x2 = self.resolve_with_image(bound_y)
             y2 = self.resolve(x2)
-
-        #if x1 < 0 or y1 < 0 or x2 < 0 or y2 < 0:
-         #   raise Exception(f"Coord under 0 : x1={x1}, y1={y1}, x2={x2}, y2={y2}")
 
         dx = x2 - x1
         dy = y2 - y1
@@ -58,10 +66,6 @@ class Donati:
             y = y + incr_y
 
         return _l
-
-
-
-
 
     def get_distance_from_point(self, x, y):
         """
