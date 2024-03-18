@@ -39,6 +39,7 @@ class Slice:
 
         donati = Donati(p, q)  # y = px + q
         strategy = Coeff_Strategy()
+        _l = donati.dda(width, height)
 
         for y in range(height):
             for x in range(width):
@@ -46,14 +47,13 @@ class Slice:
                 pixel = image.getpixel((x, y))
                 if debug:
                     print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pixel}")
-                if donati.is_point_on(x, y):
+                if (x, y) in _l:
                     print(f"Pixel: ({x}, {y}), is on point. Valeur du pixel : {pixel}")
                     # if there is a pixel located at the index position, then return True
                     if len(res) <= index:
                         res.append([Pixel(x, y, pixel)])
                     else:
                         res[index].append(Pixel(x, y, pixel))
-                        
 
         if debug:
             print(f"Result array length = {len(res)}.")
@@ -101,7 +101,8 @@ class Slice:
                 # Open the image using PIL
                 try:
                     img = Image.open(file_path)                    
-                    # Use cut_image to process the image. save the result in res and coef_list. append the result to the list
+                    # Use cut_image to process the image. save the result in res and coef_list. append the result to
+                    # the list
                     res, coef_list = self.cut_image(file_path, slice_info, debug)
                     print(f"Image '{img}' size: {img.size}")
                     print(f"res = {res}")
