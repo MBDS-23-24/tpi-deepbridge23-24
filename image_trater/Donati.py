@@ -3,6 +3,39 @@ class Donati:
         self.p = p
         self.q = q
 
+
+    def bresenhams_line_algorithm(self, x0, y0, x1, y1):
+        """
+        Implementation of the Bresenham's line algorithm.
+        
+        Args:
+        x0, y0: int
+            The x and y coordinates of the start point of the line
+        x1, y1: int
+            The x and y coordinates of the end point of the line
+            
+        Returns:
+        A list of tuples representing the points on the line
+        """
+        points = []
+        dx = abs(x1 - x0)
+        dy = -abs(y1 - y0)
+        sx = 1 if x0 < x1 else -1
+        sy = 1 if y0 < y1 else -1
+        err = dx + dy  
+        while True:
+            points.append((x0, y0))  # Add the current point to the list
+            if x0 == x1 and y0 == y1:  # Stop if we've reached the end point
+                break
+            e2 = 2 * err
+            if e2 >= dy:
+                err += dy
+                x0 += sx
+            if e2 <= dx: 
+                err += dx
+                y0 += sy
+        return points
+
     def is_point_on(self, x, y):
         """
         This function takes a point and returns
