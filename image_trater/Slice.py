@@ -43,6 +43,7 @@ class Slice:
         donati = Donati(p, q)  # y = px + q
         strategy = Coeff_Strategy()
         _l = donati.draw_xiaolin(width, height)  # return a list of Pixels
+        _l = list(filter(lambda p: sum(p.get_brightness()) > 0.0, _l))
         if debug:
             print(f"Pixels returned by xiaolin : {_l}")
         for pix in _l:
