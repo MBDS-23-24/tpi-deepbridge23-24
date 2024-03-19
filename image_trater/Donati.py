@@ -15,9 +15,9 @@ class Donati:
         y: int
             The y coordinate of the point
         """
-        # The equation of the curve is: y = p*x + q
-        return y == self.p * x + self.q
-
+        # The equation of the curve is: y = self.p * x + self.q
+        return x == self.p
+    
     def get_distance_from_point(self, x, y):
         """
         This function takes a point and returns

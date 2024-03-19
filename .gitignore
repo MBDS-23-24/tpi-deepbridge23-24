@@ -1,0 +1,4 @@
+.idea
+.venv
+examples/tests/line2D/set/patients
+image_trater/__pycache__
