@@ -22,7 +22,6 @@ def compression_coefficient(x: list[any], eval_func, strategy):
     """
 
     criteria_list = list(map(lambda elem: eval_func(elem), x))
-    print(f"{criteria_list}")
     criteria_object = CriteriaBrightness(criteria_list)
     return strategy(criteria_object)
 
@@ -48,14 +47,20 @@ def merge_pixels(pixels: list, coefs: list, debug=False):
 
 
 def merge_pixel(pixel, coef, debug=False):
+    for i in range(0, len(coef)):  # handle alpha
+        if i == 0:
+            coef[i].append(1.0)
+        else:
+            coef[i].append(0.0)
+
     pcs = list(zip(pixel, coef))
     _p, _c = pcs[0]
     x, y = _p.get_position()
-    col = tuple(_pigment * _c for _pigment in _p.get_color())
+    col = tuple(_pigment * _fact for _pigment, _fact in zip(_p.get_color(), _c))
     for i in range(1, len(pcs)):
         p, c = pcs[i]
-        new_pigment = tuple(pigment * c for pigment in p.get_color())
-        col += tuple(a + b for a, b in zip(col, new_pigment))
+        new_pigment = tuple(pigment * fact for pigment, fact in zip(p.get_color(), c))
+        col = tuple(sum(item) for item in zip(col, new_pigment))
     if debug and len(pixel) > 1:
         print(f"final color {col} for coord {(x, y)}!")
     return Pixel(x, y, col)
@@ -65,6 +70,6 @@ def map_coef_list(ls, eval_func, strategy):
     return list(
         map(
             lambda x:
-                [1] if len(x) == 1 else compression_coefficient(x, eval_func, strategy), ls
+                compression_coefficient(x, eval_func, strategy), ls
         )
     )

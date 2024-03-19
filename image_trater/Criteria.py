@@ -26,10 +26,8 @@ class CriteriaBrightness(ICriteria):
         return self.brightness
 
     def sumall(self):
-        t = list(zip(*self.brightness))
-        print(t)
         return [sum(t) for t in list(zip(*self.brightness))]  # RGB brightness avg
 
     def div(self, x):
-        r = [((l / r) for l, r in zip(t, x)) for t in self.brightness]
-        return r
+        return [[l / r for l, r in zip(t, x)] for t in self.brightness]
+
