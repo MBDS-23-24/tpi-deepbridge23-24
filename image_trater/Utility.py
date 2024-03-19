@@ -1,31 +1,33 @@
 import math
 from Pixel import Pixel
-from Coeff_Strategy import Coeff_Strategy
-from Donati import Donati
+from Criteria import CriteriaBrightness
+
 
 # NOTE : Deprecated
 # def eval_diagonal(width, height):
 #     return math.ceil(math.sqrt(width ** 2 + height ** 2))
 
 
-def compression_coefficient(x:list, eval_func, strategy):
+def compression_coefficient(x: list[any], eval_func, strategy):
     """
     Compute the compression coefficient of a list of pixels.
 
     Args:
         x: List of pixels.
-        eval_func: Function to compute the distance from a point.
+        eval_func: Function to compute the criteria from a pixel.
         strategy: Strategy to compute the compression coefficient.
 
     Returns:
         The compression coefficient.
     """
 
-    distance_list = list(map(lambda y: eval_func(y[0].get_position()), x))
-    return strategy(distance_list)
+    criteria_list = list(map(lambda elem: eval_func(elem), x))
+    print(f"{criteria_list}")
+    criteria_object = CriteriaBrightness(criteria_list)
+    return strategy(criteria_object)
 
 
-def merge_pixels(pixels:list, coefs:list, debug=False):
+def merge_pixels(pixels: list, coefs: list, debug=False):
     """
     Merge a list of pixels with given coefficients respectives in coefs.
 
@@ -44,6 +46,7 @@ def merge_pixels(pixels:list, coefs:list, debug=False):
 
     return res
 
+
 def merge_pixel(pixel, coef, debug=False):
     pcs = list(zip(pixel, coef))
     _p, _c = pcs[0]
@@ -54,12 +57,14 @@ def merge_pixel(pixel, coef, debug=False):
         new_pigment = tuple(pigment * c for pigment in p.get_color())
         col += tuple(a + b for a, b in zip(col, new_pigment))
     if debug and len(pixel) > 1:
-        print(f"final color {col} for coord {(x,y)}!")
+        print(f"final color {col} for coord {(x, y)}!")
     return Pixel(x, y, col)
 
-def map_coef_list(ls, donati:Donati, strategy:Coeff_Strategy):
-    return list(map(lambda x: [1] if len(x) == 1
-                    else compression_coefficient(
-                        x, donati.get_distance_from_point, 
-                        strategy.eval_coeff_by_max_dist)
-                        , ls))
+
+def map_coef_list(ls, eval_func, strategy):
+    return list(
+        map(
+            lambda x:
+                [1] if len(x) == 1 else compression_coefficient(x, eval_func, strategy), ls
+        )
+    )

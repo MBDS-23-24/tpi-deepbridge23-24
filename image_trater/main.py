@@ -3,7 +3,7 @@ from Slice import Slice
 import os
 
 
-def run(src, dest, slice_info=(2, 0)):
+def run(src, dest, slice_info=(1, 0)):
     _slice = Slice()
     return _slice.generate_image(slice_info, src, dest, debug=True)
 
