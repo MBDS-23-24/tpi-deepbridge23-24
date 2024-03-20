@@ -11,12 +11,12 @@ class Slice:
     def __init__(self):
         pass
 
-    def generate_image(self, slice_info, src, dst, debug=False):
+    def generate_image(self, slice_info, src, debug=False):
         """
         This function takes an image from src
         and saves the results in dst
         Args:
-        src: str
+        src: str  
             The source of the image
         dst: str
             The destination of the image
@@ -54,13 +54,48 @@ class Slice:
                                                          strategy.eval_coeff_by_max_dist)
                         res[index] = merge_pixel(current_pixel, pixel, c1, c2)
 
-        if debug:
-            print(f"Result array length = {len(res)}.")
+        # if debug:
+        #     print(f"Result array length = {len(res)}.")
+        # res = [pixel if pixel is not None else self.default_pixel for pixel in res]
+        # if debug:
+        #     print(f"Result array length after treatment = {len(res)}.")
+
+        # Prepare the resulting image
         res = [pixel if pixel is not None else self.default_pixel for pixel in res]
-        if debug:
-            print(f"Result array length after treatment = {len(res)}.")
-        # Put the pixels into the image
         im = Image.new('RGB', (len(res), self.nb_images))
         im.putdata(res)
-        # Save the image
-        im.save(dst)
+
+        # Return the generated image
+        return im
+    
+        ## Put the pixels into the image
+        #im = Image.new('RGB', (len(res), self.nb_images))
+        #im.putdata(res)
+        ## Save the image
+        #im.save(dst)
+
+    def merge_images(self, src, merged_images):
+        """
+        Merge images from the provided paths vertically.
+        Args:
+            src (list): List of paths to the images to be merged.
+            generated_images (str): Path where the merged image will be saved.
+        """
+
+        # Prepare the merged image
+        images = src
+        first_image = images[0]
+        max_width = first_image.width
+        total_height = 512
+        merged_image = Image.new('RGB', (max_width, total_height))
+
+        # Paste each image into the merged image
+        y_offset = 0
+        for img in images:
+            merged_image.paste(img, (0, y_offset))
+            y_offset += img.size[1]
+
+        # Save the merged image
+            merged_image.save(merged_images)
+
+
