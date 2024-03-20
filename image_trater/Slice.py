@@ -16,7 +16,6 @@ from Utility import merge_pixels
 
 class Slice:
     default_pixel_color = (255, 0, 0, 1)
-    #nb_images = 3
 
     def __init__(self):
         pass
@@ -80,6 +79,7 @@ class Slice:
         try:
             # Read DICOM file
             dicom_data = pydicom.dcmread(file_path)
+            # The SliceLocation attribute is used to determine the position of the slice
             if hasattr(dicom_data, 'SliceLocation'):
                 # Extract pixel data
                 image_data = dicom_data.pixel_array

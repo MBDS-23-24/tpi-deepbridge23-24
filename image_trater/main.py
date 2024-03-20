@@ -3,7 +3,7 @@ from Slice import Slice
 import os
 import time
 
-def run(src, dest, slice_info=(350, 0)):
+def run(src, dest, slice_info=(180, 0)):
     _slice = Slice()
     return _slice.generate_dicom_image(src=src, dst=dest, slice_info=slice_info)
 
