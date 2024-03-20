@@ -1,9 +1,11 @@
 # from image_trater.Slice import Slice
+import sys
+
 from Slice import Slice
 import os
 
 
-def run(src, dest, slice_info=(1, -1.23)):
+def run(src, dest, slice_info=(sys.maxsize, 1)):
     _slice = Slice()
     return _slice.generate_image(slice_info, src, dest, debug=True)
 

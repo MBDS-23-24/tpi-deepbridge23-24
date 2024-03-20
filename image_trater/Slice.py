@@ -48,7 +48,7 @@ class Slice:
             print(f"Pixels returned by xiaolin : {_l}")
         for pix in _l:
             x, y = pix.get_position()
-            if not(0 <= x < width) or not( 0 <= y < height):
+            if not(0 <= x < width) or not(0 <= y < height):
                 continue
             index = x if p <= 1 else y
             if debug:

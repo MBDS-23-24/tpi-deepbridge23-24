@@ -79,4 +79,8 @@ def draw_xiaolin_line(x0, y0, x1, y1):
 
         intery += gradient
 
+    print("pixel catch by xiaolin")
+    for p in pixels_history:
+        print(f"{p.get_position()}")
+
     return pixels_history

@@ -1,10 +1,12 @@
+import sys
+
 from Xiaolin_Algo import draw_xiaolin_line
 
 
 class Donati:
     def __init__(self, p, q):
         self.p = p
-        self.q = q
+        self.q = q if p < sys.maxsize else 0
 
     def resolve(self, x):
         return (self.p * x) + self.q
@@ -44,13 +46,13 @@ class Donati:
     def draw_xiaolin(self, bound_x, bound_y):
         x1 = 0
         y1 = self.q
-
         x2 = bound_x
         y2 = self.resolve(x2)
         if y2 > bound_y:
             x2 = self.resolve_with_image(bound_y)
             y2 = self.resolve(x2)
 
+        print(f"{x1, y1}, {x2, y2}")
         return draw_xiaolin_line(x1, y1, x2, y2)
 
 
