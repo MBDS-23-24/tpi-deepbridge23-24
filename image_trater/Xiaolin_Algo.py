@@ -52,6 +52,7 @@ def draw_xiaolin_line(x0, y0, x1, y1):
     else:
         pixels_history.append(plot(xpxl1, ypxl1, reverse_fractional_part(yend) * xgap))
         pixels_history.append(plot(xpxl1, ypxl1 + 1, fractional_part(yend) * xgap))
+
     intery = yend + gradient  # first y-intersection for the main loop
 
     # handle second endpoint
@@ -69,7 +70,7 @@ def draw_xiaolin_line(x0, y0, x1, y1):
         pixels_history.append(plot(xpxl2, ypxl2 + 1, fractional_part(yend) * xgap))
 
     # main loop
-    for x in range(xpxl1 + 1, xpxl2):
+    for x in range(xpxl1 + 1, xpxl2):  # iterate up to, but not including, xpxl2
         if is_steep:
             pixels_history.append(plot(math.floor(intery), x, reverse_fractional_part(intery)))
             pixels_history.append(plot(math.floor(intery) + 1, x, fractional_part(intery)))
@@ -78,9 +79,5 @@ def draw_xiaolin_line(x0, y0, x1, y1):
             pixels_history.append(plot(x, math.floor(intery) + 1, fractional_part(intery)))
 
         intery += gradient
-
-    print("pixel catch by xiaolin")
-    for p in pixels_history:
-        print(f"{p.get_position()}")
 
     return pixels_history

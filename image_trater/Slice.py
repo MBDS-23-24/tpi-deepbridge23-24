@@ -33,19 +33,19 @@ class Slice:
         """
         image = Image.open(src)
         image = image.convert("RGBA")
-
         width, height = image.size
 
         res = {}
-
-        # donati = Donati(p, q)  # y = px + q
-        line = Line(math.floor(width/2), 0, math.floor(width/2), height)
+        line = Line(0, 0, 2, 2)
         p = line.get_sleep()
         strategy = Coeff_Strategy()
+
         _l = line.draw_xiaolin()  # return a list of Pixels
         _l = list(filter(lambda _p: sum(_p.get_brightness()) > 0.0, _l))
+
         if debug:
             print(f"Pixels returned by xiaolin : {_l}")
+
         for pix in _l:
             x, y = pix.get_position()
             if not (0 <= x < width) or not (0 <= y < height):
@@ -72,6 +72,8 @@ class Slice:
         if debug:
             print(f"Result array of pixel retrieved on images thanks to xiaolin line {res}")
             print(f"Result array length = {len(res)}.")
+
+        res = dict(sorted(res.items()))
 
         coef_list = map_coef_list(list(res.values()), lambda _pix: _pix.get_brightness(),
                                   strategy.eval_coeff_by_density)
