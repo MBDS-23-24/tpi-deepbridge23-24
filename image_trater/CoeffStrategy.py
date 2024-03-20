@@ -6,6 +6,7 @@ class CoeffStrategy:
     def __init__(self):
         pass
 
-    def eval_coeff_by_density(self, criteria: Criteria):
+    @staticmethod
+    def eval_coeff_by_density(criteria: Criteria):
         return criteria.div(criteria.sumall())
     

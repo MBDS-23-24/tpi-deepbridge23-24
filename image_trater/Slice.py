@@ -129,3 +129,4 @@ class Slice:
         matrix_res = np.array(matrix_res, dtype=np.uint8)
         im = Image.fromarray(matrix_res)
         im.save(dst)
+

@@ -1,5 +1,4 @@
 import sys
-
 from Xiaolin_Algo import draw_xiaolin_line
 
 
@@ -17,4 +16,3 @@ class Line:
 
     def draw_xiaolin(self):
         return draw_xiaolin_line(self.x0, self.y0, self.x1, self.y1)
-
