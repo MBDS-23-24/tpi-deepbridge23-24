@@ -164,26 +164,24 @@ class Slice:
             if os.path.isfile(file_path):
                 # Read DICOM file
                 dicom_data = pydicom.dcmread(file_path)
-                try:
-                    # Extract pixel data
-                    image_data = dicom_data.pixel_array
-                    # Use cut_image to process the image
-                    res, coef_list = self.cut_dicom_image(file_path, slice_info, debug)
-                    # print(f"Image '{dicom_file}' size: {image_data.shape}")
-                    # print(f"res = {res}")
-                    # print(f"coef_list = {coef_list}")
-                    # Append the result to the list
-                    # matrix_res.append(list(map(lambda pix: pix.get_color(), merge_pixels(pixels=res, coefs=coef_list, debug=True))))
-                    # append pixel color to the list if if the position is on the line
-                    matrix_res.append(list(map(lambda pix: pix[0].get_color(), res)))
-                except Exception as e:
-                    print(f"Error processing '{dicom_file}': {e}")
-                counter += 1
-                print(f"Processed {counter} of {dicmlist_len} DICOM files.")
+                if hasattr(dicom_data, 'SliceLocation'):
+                    try:
+                        # Extract pixel data
+                        image_data = dicom_data.pixel_array
+                        # Use cut_image to process the image
+                        res, coef_list = self.cut_dicom_image(file_path, slice_info, debug)
+                        # append pixel color to the list if if the position is on the line
+                        matrix_res.append(list(map(lambda pix: pix[0].get_color(), res)))
+                    except Exception as e:
+                        print(f"Error processing '{dicom_file}': {e}")
+                    counter += 1
+                    print(f"Processed {counter} of {dicmlist_len} DICOM files.")
 
         # print(f" ------------- Matrix res -------------\n{matrix_res}")
         matrix_res = np.array(matrix_res, dtype=np.uint8)
         im = Image.fromarray(matrix_res)
+        # Rotate the image 180 degrees
+        im = im.rotate(180)
         im.save(dst)
         print("done")    
 
