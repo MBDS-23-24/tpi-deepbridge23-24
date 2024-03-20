@@ -23,9 +23,9 @@ Cet espace regroupe des fonctions utilitaires générales, notamment :
 
 La classe `Slice` gère les images morceau par morceau, en utilisant des informations de découpe.
 
-## Coeff_Strategy
+## CoeffStrategy
 
-La classe Coeff_Strategy offre différentes stratégies pour évaluer les coefficients utilisés lors du traitement d'une liste de pixels. Ces stratégies comprennent l'évaluation en fonction de la distance maximale, minimale, moyenne, ou l'assignation de coefficients égaux à toutes les distances.
+La classe CoeffStrategy offre différentes stratégies pour évaluer les coefficients utilisés lors du traitement d'une liste de pixels. Ces stratégies comprennent l'évaluation en fonction de la distance maximale, minimale, moyenne, ou l'assignation de coefficients égaux à toutes les distances.
 
 ## Main
 

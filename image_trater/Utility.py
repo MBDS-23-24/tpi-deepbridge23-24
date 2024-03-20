@@ -1,11 +1,5 @@
-import math
 from Pixel import Pixel
 from Criteria import CriteriaBrightness
-
-
-# NOTE : Deprecated
-# def eval_diagonal(width, height):
-#     return math.ceil(math.sqrt(width ** 2 + height ** 2))
 
 
 def compression_coefficient(x: list[any], eval_func, strategy):
@@ -36,6 +30,9 @@ def merge_pixels(pixels: list, coefs: list, debug=False):
 
     Returns:
         List representing the merged RGBA values of the pixel list.
+        :param coefs:
+        :param pixels:
+        :param debug:
     """
     if len(pixels) != len(coefs):
         raise ValueError("Number of pixels and coefficients must be the same.")
