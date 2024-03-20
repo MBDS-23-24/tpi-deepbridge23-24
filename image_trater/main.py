@@ -5,9 +5,9 @@ from Slice import Slice
 import os
 
 
-def run(src, dest, slice_info=(sys.maxsize, 1)):
+def run(src, dest):
     _slice = Slice()
-    return _slice.generate_image(slice_info, src, dest, debug=True)
+    return _slice.generate_image(src, dest, debug=True)
 
 
 if __name__ == "__main__":
