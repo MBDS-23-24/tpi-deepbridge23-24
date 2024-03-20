@@ -12,7 +12,8 @@ if __name__ == "__main__":
     # TODO: define p and q
     path = os.getcwd()
     start_time = time.time()  # Record start time
-    run(f"{path}/examples/tests/line2D/set/patients/patient1/", dest=f"{path}/examples/tests/line2D/results/maybe.png")
+    sep = os.path.sep
+    run(f"{path}{sep}examples{sep}tests{sep}line2D{sep}set{sep}patients{sep}patient1{sep}", dest=f"{path}{sep}examples{sep}tests{sep}line2D{sep}results{sep}maybe.png")
     end_time = time.time()  # Record end time
     execution_time = end_time - start_time
     print(f"Execution time: {execution_time} seconds")
