@@ -36,7 +36,7 @@ class Slice:
         width, height = image.size
 
         res = {}
-        line = Line(0, 0, 2, 2)
+        line = Line(1, 0, 1, 2)
         p = line.get_sleep()
         strategy = Coeff_Strategy()
 
