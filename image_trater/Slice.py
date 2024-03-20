@@ -38,7 +38,7 @@ class Slice:
 
         width, height = image.size
 
-        res = []
+        res = {}
 
         donati = Donati(p, q)  # y = px + q
         strategy = Coeff_Strategy()
@@ -51,6 +51,8 @@ class Slice:
             if not(0 <= x < width) or not( 0 <= y < height):
                 continue
             index = x if p <= 1 else y
+            if debug:
+                print(f"index value is {index}")
 
             pix_color = image.getpixel((x, y))
             pix.set_color(pix_color)
@@ -62,22 +64,23 @@ class Slice:
                     f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pix_color}, Coeff Bright : {coeff_bright}")
 
             # if there is a pixel located at the index position, then return True
-            if len(res) <= index:
-                res.append([pix])
-            else:
+            if index in res:
                 res[index].append(pix)
+            else:
+                res[index] = [pix]
+
         if debug:
             print(f"Result array of pixel retrieved on images thanks to xiaolin line {res}")
             print(f"Result array length = {len(res)}.")
 
-        coef_list = map_coef_list(res, lambda _pix: _pix.get_brightness(), strategy.eval_coeff_by_density)
+        coef_list = map_coef_list(list(res.values()), lambda _pix: _pix.get_brightness(), strategy.eval_coeff_by_density)
 
         if debug:
             print(f"coef list = {coef_list}")
         # NOTE : BE CAREFUL with the index of the pixel
         # pixels = [pixel[0].get_color() for pixel in res]
 
-        return res, coef_list
+        return list(res.values()), coef_list
 
     def generate_image(self, slice_info, src, dst, debug=False):
         """
