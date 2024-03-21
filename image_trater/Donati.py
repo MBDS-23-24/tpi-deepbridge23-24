@@ -58,44 +58,34 @@ class Donati:
         return (pixel_values)
 
     def process_images_in_folder(self, folder_path, start_point, end_point):
-        """
-        Processes all images in the given folder path, drawing a line using
-        Bresenham's line algorithm between the start_point and end_point.
-        It also creates a new image with the pixels along the line.
-        Args:
-        folder_path: str
-            The path to the folder containing images.
-        start_point: tuple
-            The (x, y) starting coordinates of the line.
-        end_point: tuple
-            The (x, y) ending coordinates of the line.
-        """
         for filename in os.listdir(folder_path):
             if filename.endswith(".png"):
                 file_path = os.path.join(folder_path, filename)
                 image = Image.open(file_path)
-                draw = ImageDraw.Draw(image)
+                
+                # Déterminer les points de la ligne avec l'algorithme de Bresenham
                 points_on_line = self.bresenhams_line_algorithm(*start_point, *end_point)
-                # Draw each point on the line
+
+                # Dessiner la ligne sur une copie de l'image pour la visualisation
+                visual_image = image.copy()
+                draw = ImageDraw.Draw(visual_image)
                 for point in points_on_line:
                     draw.point(point, 'black')
-                image.save(os.path.join(folder_path, f"processed_{filename}"))
-                print(f"Processed image saved as processed_{filename}")
-                # Extract the pixel array along the line
-                line_pixel_array = self.get_line_pixels(image, points_on_line)
-                # Ensure the array is not empty
-            if not line_pixel_array:
-                print("No pixels found on line, skipping image creation.")
-                continue
-            # Determine the length of the line_image based on the number of pixels
-            line_image_length = max(len(line_pixel_array), 1)
-            # Create a new image with the same mode as the original and the correct size
-            line_image_length = len(line_pixel_array)
-            line_image = Image.new(image.mode, (line_image_length, 1))
-            # Use putdata with the list of tuples to create the line image
-            line_image.putdata(line_pixel_array)
+                visual_image.save(os.path.join(folder_path, f"visual_{filename}"))
+
+                # Extraire les valeurs des pixels de l'image originale le long de la ligne
+                pixel_values = self.get_line_pixels(image, points_on_line)
+                if not pixel_values:
+                    print("No pixels found on line, skipping line image creation.")
+                    continue
+
+            # Créer une nouvelle image composée uniquement des pixels le long de la ligne
+            line_image_length = len(pixel_values)
+            line_image = Image.new('RGB', (line_image_length, 1))
+            line_image.putdata(pixel_values)
             line_image.save(os.path.join(folder_path, f"line_{filename}"))
             print(f"Line image saved as line_{filename}")
+
                 
     def is_point_on(self, x, y):
         """
