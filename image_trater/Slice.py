@@ -18,19 +18,50 @@ class Slice:
     def __init__(self):
         self.res = {}
 
-    def _private_cut_image(self, src, pos1, pos2, debug=False):
+    def dicom_to_rgba_array(self, dicom_file_path):
+        # Read the DICOM file
+        dicom_data = pydicom.dcmread(dicom_file_path)
+
+        # Normalize pixel values to the range [0, 1]
+        normalized_data = dicom_data.pixel_array.astype(float) / np.max(dicom_data.pixel_array)
+
+        # Convert grayscale to RGBA by duplicating the pixel values across all color channels
+        rgba_data = np.repeat(normalized_data[..., np.newaxis], 4, axis=-1)
+
+        # Set alpha channel based on DICOM metadata (if available)
+        if hasattr(dicom_data, 'WindowCenter') and hasattr(dicom_data, 'WindowWidth'):
+            window_center = dicom_data.WindowCenter
+            window_width = dicom_data.WindowWidth
+            min_value = window_center - window_width / 2
+            max_value = window_center + window_width / 2
+            alpha_channel = ((dicom_data.pixel_array >= min_value) & (dicom_data.pixel_array <= max_value)).astype(np.uint8) * 255
+            rgba_data[:, :, 3] = alpha_channel
+        else:
+            # Default to fully opaque if DICOM metadata is not available
+            rgba_data[:, :, 3] = 255
+
+        # Convert pixel values to uint8
+        rgba_data = (rgba_data * 255).astype(np.uint8)
+
+        return rgba_data
+
+    def cut_dicom_image(self, src, pos1, pos2, debug=False):
         """
-        This function takes an image from src
-        and return a list of pixels and a list of coefficients
+        This function takes a DICOM image from src and returns a list of pixels and a list of coefficients
         Args:
         src: str
-            The source of the image
+            The source of the DICOM image
         slice_info: tuple
             The equation of the straight line
         """
-        image = Image.open(src)
-        image = image.convert("RGBA")
-        width, height = image.size
+
+        # Read DICOM file
+        dicom_data = pydicom.dcmread(src)
+
+        # Extract pixel data
+        image = dicom_data.pixel_array
+
+        width, height = image.shape
 
         self.res = {}
         x1, y1 = pos1
@@ -56,14 +87,13 @@ class Slice:
             if debug:
                 print(f"index value is {index}")
 
-            pix_color = image.getpixel((x, y))
-            pix.set_color(pix_color)
+            pixel = self.dicom_to_rgba_array(src)[x, y]
+            pix.set_color(pixel)
 
             coeff_bright = pix.get_brightness()
 
-            if debug:
-                print(
-                    f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pix_color}, Coeff Bright : {coeff_bright}")
+            #if debug:
+                #print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pix_color}, Coeff Bright : {coeff_bright}")
 
             # if there is a pixel located at the index position, then return True
             if index in self.res:
@@ -86,78 +116,22 @@ class Slice:
 
         return list(self.res.values()), coef_list
 
-
-    def cut_dicom_image(self, src, slice_info, debug=False):
-        """
-        This function takes a DICOM image from src and returns a list of pixels and a list of coefficients
-        Args:
-        src: str
-            The source of the DICOM image
-        slice_info: tuple
-            The equation of the straight line
-        """
-        p, q = slice_info
-
-        # Read DICOM file
-        dicom_data = pydicom.dcmread(src)
-
-        # Extract pixel data
-        image_data = dicom_data.pixel_array
-
-        width, height = image_data.shape
-
-        res = []
-
-        donati = Donati(p, q)  # y = px + q
-        strategy = Coeff_Strategy()
-
-        for y in range(height):
-            for x in range(width):
-                index = x if p <= 1 else y
-                pixel = image_data[y, x]  # Note: DICOM data is accessed in (row, column) format
-                if debug:
-                    print(f"Coordinates of the pixel: ({x}, {y}), Value of the pixel: {pixel}")
-                if donati.is_point_on(x, y):
-                    # print(f"Pixel: ({x}, {y}), is on point. Value of the pixel: {pixel}")
-                    # if there is a pixel located at the index position, then return True
-                    if len(res) <= index:
-                        res.append([Pixel(x, y, pixel)])
-                    else:
-                        res[index].append(Pixel(x, y, pixel))
-
-        if debug:
-            print(f"Result array length = {len(res)}.")
-        # res = [pixel if pixel is not None else self.default_pixel_color for pixel in res]
-        if debug:
-            print(f"Result array length after treatment = {len(res)}.")
-            print(f"Result array = {res}")
-
-        coef_list = map_coef_list(res, donati, strategy)
-        # print(f"coef list = {coef_list}")
-        # NOTE: BE CAREFUL with the index of the pixel
-        # pixels = [pixel[0].get_color() for pixel in res]
-
-        # print(f"pixel colors : {[pixel[0].get_color() for pixel in res]}")
-        # print position
-        # print(f"pixel positions : {[pixel[0].get_position() for pixel in res]}")
-        return res, coef_list
-
-    def process_dicom_file(self, file_path, slice_info, debug=False):
+    def process_dicom_file(self, file_path, pos1, pos2, debug=False):
         try:
             # Read DICOM file
             dicom_data = pydicom.dcmread(file_path)
             if hasattr(dicom_data, 'SliceLocation'):
                 # Extract pixel data
-                image_data = dicom_data.pixel_array
+                #image_data = dicom_data.pixel_array
                 # Use cut_image to process the image
-                res, coef_list = self.cut_dicom_image(file_path, slice_info, debug)
+                res, coef_list = self.cut_dicom_image(file_path, pos1, pos2, debug)
                 # Append pixel color to the list if the position is on the line
                 return list(map(lambda pix: pix[0].get_color(), res))
         except Exception as e:
             print(f"Error processing '{file_path}': {e}")
         return []
 
-    def generate_dicom_image(self, slice_info, src, dst, debug=False):
+    def generate_dicom_image(self, pos1, pos2, src, dst, debug=False):
         if not os.path.isdir(src):
             print(f"Folder '{src}' does not exist.")
             return
@@ -173,7 +147,7 @@ class Slice:
         pool = Pool()  # Create a pool of worker processes
 
         # Process DICOM files in parallel
-        results = [pool.apply_async(self.process_dicom_file, (os.path.join(src, file), slice_info, debug)) for file in dicom_files]
+        results = [pool.apply_async(self.process_dicom_file, (os.path.join(src, file), pos1, pos2, debug)) for file in dicom_files]
 
         for result in results:
             matrix_res.append(result.get())
@@ -186,104 +160,3 @@ class Slice:
         im = im.rotate(180)
         im.save(dst)
         print("done") 
-
-    def cut_image(self, src, slice_info, debug=False):
-        """
-        This function takes an image from src
-        and return a list of pixels and a list of coefficients
-        Args:
-        src: str
-            The source of the image
-        slice_info: tuple
-            The equation of the straight line
-        """
-        p, q = slice_info
-        image = Image.open(src)
-        image = image.convert("RGBA")
-
-        width, height = image.size
-
-        res = [] 
-
-        donati = Donati(p, q)  # y = px + q
-        strategy = Coeff_Strategy()
-
-        for y in range(height):
-            for x in range(width):
-                index = x if p <= 1 else y
-                pixel = image.getpixel((x, y))
-                if debug:
-                    print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pixel}")
-                if donati.is_point_on(x, y):
-                    print(f"Pixel: ({x}, {y}), is on point. Valeur du pixel : {pixel}")
-                    # if there is a pixel located at the index position, then return True
-                    if len(res) <= index:
-                        res.append([Pixel(x, y, pixel)])
-                    else:
-                        res[index].append(Pixel(x, y, pixel))
-                        
-
-        if debug:
-            print(f"Result array length = {len(res)}.")
-        # res = [pixel if pixel is not None else self.default_pixel_color for pixel in res]
-        if debug:
-            print(f"Result array length after treatment = {len(res)}.")
-            print(f"Result array = {res}")
-
-
-        coef_list = map_coef_list(res, donati, strategy)
-        print(f"coef list = {coef_list}")
-        # NOTE : BE CAREFUL with the index of the pixel
-        # pixels = [pixel[0].get_color() for pixel in res]
-
-        print(f"pixel colors : {[pixel[0].get_color() for pixel in res]}")
-        # print position
-        print(f"pixel positions : {[pixel[0].get_position() for pixel in res]}")
-        return res, coef_list
-
-    def generate_image(self, slice_info, src, dst, debug=False):
-        """
-        This function takes an image from src
-        and saves the results in dst
-        Args:
-        src: str
-            The source of the image
-        dst: str
-            The destination of the image
-        """
-        # Check if the folder exists
-        if not os.path.isdir(src):
-            print(f"Folder '{src}' does not exist.")
-            return
-
-        # Get a list of files in the folder
-        images = os.listdir(src)
-
-        matrix_res = []
-
-        for img in images:
-            # Get the full path of the file
-            file_path = os.path.join(src, img)
-            # Check if the file is an image
-            if os.path.isfile(file_path) and any(img.endswith(ext) for ext in self.ACCEPTED_IMAGES):
-                # Open the image using PIL
-                try:
-                    img = Image.open(file_path)
-                    self.res, coef_list = self._private_cut_image(file_path, pos1, pos2, debug)
-
-                    if debug:
-                        print(f"Image '{img}' size: {img.size}")
-                        print(f"self.res = {self.res}")
-                        print(f"coef_list = {coef_list}")
-
-                    # appends the result to the list
-                    matrix_res.append(
-                        list(map(lambda pix: pix.get_color(), merge_pixels(pixels=self.res, coefs=coef_list,
-                                                                           debug=debug))))
-                except Exception as e:
-                    print(f"Error processing '{img}': {e}")
-
-        matrix_res = np.array(matrix_res, dtype=np.uint8)
-        im = Image.fromarray(matrix_res)
-        im.save(dst)
-        print("done")
