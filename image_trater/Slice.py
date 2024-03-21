@@ -43,19 +43,23 @@ class Slice:
         if debug:
             print(f"dda return {_l}")
 
-        for y in range(height):
-            for x in range(width):
-                index = x if p <= 1 else y
-                pixel = image.getpixel((x, y))
-                if debug:
-                    print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pixel}")
-                if (x, y) in _l:
-                    print(f"Pixel: ({x}, {y}), is on point. Valeur du pixel : {pixel}")
-                    # if there is a pixel located at the index position, then return True
-                    if len(res) <= index:
-                        res.append([Pixel(x, y, pixel)])
-                    else:
-                        res[index].append(Pixel(x, y, pixel))
+        for pos in _l:
+            x, y = pos
+
+            if not(0 < x < width and 0 < y < height):
+                continue
+
+            index = x if p <= 1 else y
+            pixel = image.getpixel((x, y))
+            if debug:
+                print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pixel}")
+            if (x, y) in _l:
+                print(f"Pixel: ({x}, {y}), is on point. Valeur du pixel : {pixel}")
+                # if there is a pixel located at the index position, then return True
+                if len(res) <= index:
+                    res.append([Pixel(x, y, pixel)])
+                else:
+                    res[index].append(Pixel(x, y, pixel))
 
         if debug:
             print(f"Result array length = {len(res)}.")
