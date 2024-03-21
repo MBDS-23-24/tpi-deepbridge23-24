@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from PIL import Image, ImageDraw
+import time
 class Donati:
     def __init__(self, p, q):
         self.p = p
@@ -83,7 +84,7 @@ class Donati:
             line_image_length = len(pixel_values)
             line_image = Image.new('RGB', (line_image_length, 1))
             line_image.putdata(pixel_values)
-            line_image.save(os.path.join(folder_path, f"line_{filename}"))
+            line_image.save(os.path.join(folder_path, f"line_{filename}"), 'PNG')
             print(f"Line image saved as line_{filename}")
 
                 
@@ -130,19 +131,19 @@ class Donati:
         """
         return self.bresenhams_line_algorithm(x0, y0, x1, y1)
 
-                
 if __name__ == "__main__":
     line = Donati(p=1, q=0)
-    # Points de départ et de fin pour la ligne à tracer
-    start_point = (0, 0)  
-    end_point = (10, 10) 
+    start_point = (0, 0)
+    end_point = (341, 512)
     relative_folder_path = "examples/tests/line2D/set"
     absolute_folder_path = os.path.join(os.getcwd(), relative_folder_path)
-
+    start_time = time.time()  
     line.process_images_in_folder(absolute_folder_path, start_point, end_point)
     # Récupérez les coordonnées de la ligne
     line_coordinates = line.get_line_coordinates(*start_point, *end_point)
     print("Line Coordinates:", line_coordinates)
-    
+    end_time = time.time()  
+    elapsed_time = end_time - start_time
+    print(f"Temps écoulé : {elapsed_time} secondes")
     
     
