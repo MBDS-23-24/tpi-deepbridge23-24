@@ -72,7 +72,7 @@ class Donati:
                 draw = ImageDraw.Draw(visual_image)
                 for point in points_on_line:
                     draw.point(point, 'black')
-                visual_image.save(os.path.join(folder_path, f"visual_{filename}"))
+                visual_image.sae(os.path.join(folder_path, f"visual_{filename}"))
 
                 # Extraire les valeurs des pixels de l'image originale le long de la ligne
                 pixel_values = self.get_line_pixels(image, points_on_line)
