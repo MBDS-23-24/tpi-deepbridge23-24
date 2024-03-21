@@ -1,13 +1,16 @@
 import os
+import time
+
 import numpy as np
 import pydicom
+from pydicom.pixel_data_handlers import convert_color_space
 from PIL import Image
 from multiprocessing import Pool
 
 from CoeffStrategy import CoeffStrategy
 from Line import Line
 from Utility import map_coef_list
-from Utility import merge_pixels
+from Utility import remove_contents
 
 
 class Slice:
@@ -59,62 +62,16 @@ class Slice:
         dicom_data = pydicom.dcmread(src)
 
         # Extract pixel data
-        image = dicom_data.pixel_array
+        image_raw = dicom_data.pixel_array
+        image_np = np.array(image_raw, dtype=np.uint8)
+        im = Image.fromarray(image_np)
+        temppath = f'{os.getcwd()}/tempfiles'
+        filetemp = f'/temp{time.time()}.png'
+        im.save(temppath+filetemp)
+        res = self.cut_image(temppath+filetemp, pos1, pos2)
+        remove_contents(temppath)
 
-        width, height = image.shape
-
-        self.res = {}
-        x1, y1 = pos1
-        x2, y2 = pos2
-        line = Line(x1, y1, x2, y2)
-        p = line.get_sleep()
-        strategy = CoeffStrategy()
-
-        _l = line.draw_xiaolin()  # return a list of Pixels
-        _l = list(filter(lambda _p: sum(_p.get_brightness()) > 0.0, _l))
-
-        if debug:
-            print(f"Pixels returned by xiaolin : {_l}")
-
-        for pix in _l:
-            x, y = pix.get_position()
-
-            if not (0 <= x < width) or not (0 <= y < height):
-                continue
-
-            index = x if p <= 1 else y
-
-            if debug:
-                print(f"index value is {index}")
-
-            pixel = self.dicom_to_rgba_array(src)[x, y]
-            pix.set_color(pixel)
-
-            coeff_bright = pix.get_brightness()
-
-            #if debug:
-                #print(f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pix_color}, Coeff Bright : {coeff_bright}")
-
-            # if there is a pixel located at the index position, then return True
-            if index in self.res:
-                self.res[index].append(pix)
-            else:
-                self.res[index] = [pix]
-
-        if debug:
-            print(f"Result array of pixel retrieved on images thanks to xiaolin line {self.res}")
-            print(f"Result array length = {len(self.res)}.")
-
-        # TODO: May be interesting to change the structure of res to prevent sorting ?
-        self.res = dict(sorted(self.res.items()))
-
-        coef_list = map_coef_list(list(self.res.values()), lambda _pix: _pix.get_brightness(),
-                                  strategy.eval_coeff_by_density)
-
-        if debug:
-            print(f"coef list = {coef_list}")
-
-        return list(self.res.values()), coef_list
+        return res
 
     def process_dicom_file(self, file_path, pos1, pos2, debug=False):
         try:
@@ -159,4 +116,72 @@ class Slice:
         im = Image.fromarray(matrix_res)
         im = im.rotate(180)
         im.save(dst)
-        print("done") 
+        print("done")
+
+    def cut_image(self, src, pos1, pos2, debug=False):
+        """
+        This function takes an image from src
+        and return a list of pixels and a list of coefficients
+        Args:
+        src: str
+            The source of the image
+        slice_info: tuple
+            The equation of the straight line
+        """
+        image = Image.open(src)
+        image = image.convert("RGBA")
+        width, height = image.size
+
+        self.res = {}
+        x1, y1 = pos1
+        x2, y2 = pos2
+        line = Line(x1, y1, x2, y2)
+        p = line.get_sleep()
+        strategy = CoeffStrategy()
+
+        _l = line.draw_xiaolin()  # return a list of Pixels
+        _l = list(filter(lambda _p: sum(_p.get_brightness()) > 0.0, _l))
+
+        if debug:
+            print(f"Pixels returned by xiaolin : {_l}")
+
+        for pix in _l:
+            x, y = pix.get_position()
+
+            if not (0 <= x < width) or not (0 <= y < height):
+                continue
+
+            index = x if p <= 1 else y
+
+            if debug:
+                print(f"index value is {index}")
+
+            pix_color = image.getpixel((x, y))
+            pix.set_color(pix_color)
+
+            coeff_bright = pix.get_brightness()
+
+            if debug:
+                print(
+                    f"Coordonnées du pixel : ({x}, {y}), Valeur du pixel : {pix_color}, Coeff Bright : {coeff_bright}")
+
+            # if there is a pixel located at the index position, then return True
+            if index in self.res:
+                self.res[index].append(pix)
+            else:
+                self.res[index] = [pix]
+
+        if debug:
+            print(f"Result array of pixel retrieved on images thanks to xiaolin line {self.res}")
+            print(f"Result array length = {len(self.res)}.")
+
+        # TODO: May be interesting to change the structure of res to prevent sorting ?
+        self.res = dict(sorted(self.res.items()))
+
+        coef_list = map_coef_list(list(self.res.values()), lambda _pix: _pix.get_brightness(),
+                                  strategy.eval_coeff_by_density)
+
+        if debug:
+            print(f"coef list = {coef_list}")
+
+        return list(self.res.values()), coef_list

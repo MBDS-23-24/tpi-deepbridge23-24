@@ -1,3 +1,5 @@
+import os
+
 from Pixel import Pixel
 from Criteria import CriteriaBrightness
 
@@ -67,6 +69,19 @@ def map_coef_list(ls, eval_func, strategy):
     return list(
         map(
             lambda x:
-                compression_coefficient(x, eval_func, strategy), ls
+            compression_coefficient(x, eval_func, strategy), ls
         )
     )
+
+
+def remove_contents(directory):
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                remove_contents(file_path)
+                os.rmdir(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")

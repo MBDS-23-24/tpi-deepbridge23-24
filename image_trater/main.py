@@ -1,6 +1,3 @@
-# from image_trater.Slice import Slice
-import sys
-
 from Slice import Slice
 import os
 import time
